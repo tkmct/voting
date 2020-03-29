@@ -12,7 +12,7 @@ contract Voting {
 
     uint256 private themeCount;
     mapping(uint256 => Theme) public themes;
-    mapping(uint256 => uint256[]) public results;
+    mapping(uint256 => mapping(uint256 => uint256)) public results;
 
     // mapping to store which option users voted for
     // mapping(bytes32 => mapping(address => uint256)) votings;
