@@ -1,40 +1,25 @@
 const Voting = artifacts.require('./Voting.sol')
 
 contract('Voting', accounts => {
-  it('should create new theme', async () => {
-    const votingInstance = await Voting.deployed()
-    await votingInstance.createTheme(
-      "test voting theme",
-      "this is a test theme",
-      "A,B,C",
-      100,
-      {
-        from: accounts[0]
-      }
-    )
+  let votingInstance
 
-    const theme = await votingInstance.themes(0)
-
-    assert.equal(theme.id, 0, 'theme is created')
+  beforeEach(async () => {
+    votingInstance = await Voting.new("test", 3, {from: accounts[0], gas: 1000000});
   })
 
   it('successfully vote for an option', async () => {
-    const votingInstance = await Voting.deployed()
-    await votingInstance.createTheme(
-      "test voting theme",
-      "this is a test theme",
-      "A,B,C",
-      100,
-      {
-        from: accounts[0]
-      }
-    )
-    await votingInstance.vote(0, 0, {
-      from: accounts[0]
-    })
-
-    const result = await votingInstance.results(0, 0)
-
+    await votingInstance.vote(1, { from: accounts[0] })
+    const result = await votingInstance.result(1)
     assert.equal(result, 1, 'result should be incremented')
+  })
+
+  it('cannot vote multiple times', async () => {
+    await votingInstance.vote(1, { from: accounts[0], })
+    try {
+      await votingInstance.vote(1, { from: accounts[0], })
+      assert(false, "Second voting must be reverted")
+    } catch(e) {
+      assert(true)
+    }
   })
 })

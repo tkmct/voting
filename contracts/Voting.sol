@@ -1,50 +1,32 @@
-pragma solidity >=0.4.21 <0.7.0;
+pragma solidity >=0.6.0 <0.7.0;
 pragma experimental ABIEncoderV2;
 
+
 contract Voting {
-    struct Theme {
-        uint256 id;
-        string title;
-        string description;
-        string options; // option is comma separated string
-        uint256 finishAt;
+    string public title;
+    uint256 public optionCount;
+    uint256[] public result;
+    mapping(address => bool) public voted;
+
+    event Voted(address from, uint256 optionIndex);
+
+    constructor(string memory _title, uint256 _optionCount) public {
+        require(_optionCount < 10, "Option count must be less than 10");
+        title = _title;
+        optionCount = _optionCount;
+
+        for (uint256 i = 0; i < _optionCount; i++) {
+            result.push(0);
+        }
     }
 
-    uint256 private themeCount;
-    mapping(uint256 => Theme) public themes;
-    mapping(uint256 => mapping(uint256 => uint256)) public results;
-
-    // mapping to store which option users voted for
-    // mapping(bytes32 => mapping(address => uint256)) votings;
-
-    // TODO: write createTheme method
-    function createTheme(
-        string memory title,
-        string memory description,
-        string memory options,
-        uint256 finishAt
-    ) public returns (uint256) {
-        uint256 id = themeCount;
-
-        Theme memory theme = Theme(id, title, description, options, finishAt);
-
-        themes[id] = theme;
-        themeCount += 1;
-        return id;
+    modifier onlyOnce() {
+        require(!voted[msg.sender], "You cannot vote multiple time");
+        _;
     }
 
-    /**
-    * vote method
-    * user can vote with given
-    */
-    function vote(uint256 themeId, uint256 optionIndex) public {
-        // TODO: assert if given option is in theme's options
-        results[themeId][optionIndex] += 1;
+    function vote(uint256 _optionIndex) public {
+        require(_optionIndex < optionCount, "Invalid option index");
+        result[_optionIndex] += 1;
     }
 }
-
-/**
-one user can vote only once
-restrict user who can create new theme
-*/
-
