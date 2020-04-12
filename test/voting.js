@@ -7,6 +7,15 @@ contract('Voting', accounts => {
     votingInstance = await Voting.new("test", 3, {from: accounts[0], gas: 1000000});
   })
 
+  it('cannot deploy with more than 10 options', async () => {
+    try {
+      await Voting.new("test", 11, {from: accounts[0], gas: 1000000});
+      assert(false, 'cannot deploy with more than 10 options')
+    } catch (e) {
+      assert(true)
+    }
+  })
+
   it('successfully vote for an option', async () => {
     await votingInstance.vote(1, { from: accounts[0] })
     const result = await votingInstance.result(1)
@@ -18,7 +27,7 @@ contract('Voting', accounts => {
     try {
       await votingInstance.vote(1, { from: accounts[0], })
       assert(false, "Second voting must be reverted")
-    } catch(e) {
+    } catch (e) {
       assert(true)
     }
   })
